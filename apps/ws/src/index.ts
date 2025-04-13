@@ -142,6 +142,20 @@ function handleJoinRoom(ws: WebSocket, data: any) {
     },
   };
   notifyRoom(roomId, JSON.stringify(sendMessage));
+
+  // Notify the new player, info about the other player
+  const otherPlayer = room.players.find((p) => p.name !== name);
+  if (otherPlayer) {
+    const otherPlayerMessage = {
+      success: true,
+      message: "OTHER_PLAYER",
+      player: {
+        name: otherPlayer.name,
+        symbol: otherPlayer.symbol,
+      },
+    };
+    ws.send(JSON.stringify(otherPlayerMessage));
+  }
 }
 
 function handleStartGame(ws: WebSocket, data: any) {
@@ -340,9 +354,23 @@ wss.on("connection", function connection(ws) {
       const room = rooms[roomId];
 
       if (!room) continue;
-
+      // find the player who disconnected
+      const playerIndex = room.players.findIndex((p) => p.ws === ws);
+      if (playerIndex === -1) continue;
+      const player = room.players[playerIndex];
       // Filter out the player with the disconnected ws
       room.players = room.players.filter((player) => player.ws !== ws);
+
+      // Notify remaining players in the room
+      const disconnectMessage = {
+        success: true,
+        message: "PLAYER_DISCONNECTED",
+        player: {
+          name: player?.name,
+          symbol: player?.symbol,
+        },
+      };
+      notifyRoom(roomId, JSON.stringify(disconnectMessage));
 
       // Optionally: Remove the room if it becomes empty
       if (room.players.length === 0) {
