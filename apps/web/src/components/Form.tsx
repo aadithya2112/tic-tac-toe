@@ -25,7 +25,6 @@ export default function FormInput({
   setUsername,
   roomId,
   setRoomId,
-  symbol,
   setSymbol,
   handleCreateRoom,
   handleJoinRoom,
