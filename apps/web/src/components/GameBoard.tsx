@@ -43,7 +43,6 @@ export default function GameBoard({
         // }
 
         if (message.message === "PLAYER_JOINED") {
-          alert("Player joined");
           const newPlayer = {
             name: message.player.name,
             symbol: message.player.symbol,
@@ -119,6 +118,14 @@ export default function GameBoard({
           setGameOver(true);
           setWinner(message.winner || null);
           setIsYourTurn(false);
+        }
+
+        if (message.message === "GAME_RESET") {
+          setGameBoard(message.gameBoard);
+          setGameStarted(true);
+          setGameOver(false);
+          setWinner(null);
+          setIsYourTurn(message.currentPlayer === userSymbol);
         }
       };
     }
